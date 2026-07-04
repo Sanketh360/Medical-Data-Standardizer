@@ -1,5 +1,4 @@
-# Veritas Claims (Medical-Data-Standardizer
-) — Ingestion & Standardisation Engine
+# Veritas Claims (Medical-Data-Standardizer) — Ingestion & Standardisation Engine
 
 An industry-grade, configuration-driven ETL pipeline and operational dashboard built to ingest, validate, and standardize unstructured medical claims data (discharge summaries and lab reports) into a unified MySQL schema.
 
