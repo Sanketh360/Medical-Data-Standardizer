@@ -1,0 +1,18 @@
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Python Cache & Compiled Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Credentials and Secrets Files
+.env
+.env.local
+
+# Temp Compilations and HTML files
+medical_data.html
+*.log

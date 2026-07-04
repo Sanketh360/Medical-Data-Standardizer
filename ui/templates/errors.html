@@ -1,0 +1,95 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="header">
+    <div>
+        <h1>Ingestion Errors & Failures</h1>
+        <p>Audit trail of malformed JSON structures, invalid document payloads, or database load conflicts.</p>
+    </div>
+</div>
+
+<!-- Errors List -->
+<div class="card-section">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Error ID</th>
+                    <th>File Reference</th>
+                    <th>Stage</th>
+                    <th>Failure Reason</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for err in errors %}
+                <tr>
+                    <td><strong>#{{ err.error_id }}</strong></td>
+                    <td>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">{{ err.file_path.replace('\\', '/').split('/')[-1] }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">{{ err.file_path }}</div>
+                    </td>
+                    <td><span class="badge badge-error">{{ err.stage | upper }}</span></td>
+                    <td>
+                        <div style="color: var(--danger); font-weight: 500;">{{ err.error_reason }}</div>
+                    </td>
+                    <td>{{ err.occurred_at }}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="viewPayload({{ err.error_id }}, '{{ err.file_path.replace('\\', '/').split('/')[-1] }}')">
+                            <i data-lucide="file-text"></i> Audit Payload
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 32px;">
+                        <i data-lucide="check-circle2" style="color: var(--success); width: 36px; height: 36px; margin-bottom: 8px;"></i>
+                        <div>No ingestion errors logged. Ingestion is 100% clean!</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Raw Payload Overlay Modal -->
+<div id="payload-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h3 id="payload-title">Raw Payload Audit Trail</h3>
+            <button class="modal-close" onclick="closePayload()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="inspector-section">
+                <span class="inspector-section-title">Ingested Content (Non-conforming JSON)</span>
+                <pre class="raw-payload" id="payload-pre"></pre>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closePayload()">Close Viewer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Helper data block for python errors object conversion -->
+<script>
+    const errorPayloads = {
+        {% for err in errors %}
+        "{{ err.error_id }}": {{ err.raw_payload | tojson }},
+        {% endfor %}
+    };
+
+    function viewPayload(errorId, filename) {
+        document.getElementById('payload-title').innerText = `Raw Payload Audit: ${filename}`;
+        document.getElementById('payload-pre').innerText = errorPayloads[errorId] || "No raw payload stored.";
+        document.getElementById('payload-modal').style.display = 'flex';
+        lucide.createIcons();
+    }
+
+    function closePayload() {
+        document.getElementById('payload-modal').style.display = 'none';
+    }
+</script>
+{% endblock %}

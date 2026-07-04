@@ -1,0 +1,35 @@
+patient_name:
+  - patientName
+  - patient_name
+  - patient
+  - name
+  - patientFullName
+  - patient_full_name
+  - basic_info.patient_name
+
+age:
+  - age
+  - patientAge
+  - patient_age
+  - age_years
+  - basic_info.age
+
+gender:
+  - gender
+  - sex
+  - patientGender
+  - patient_gender
+
+hospital_name:
+  - hospitalName
+  - hospital
+  - hospital_name
+  - lab_or_hospital_name
+  - basic_info.lab_or_hospital_name
+
+doctor_name:
+  - doctorName
+  - doctor
+  - consultant
+  - basic_info.doctor_name
+  - attending_doctor

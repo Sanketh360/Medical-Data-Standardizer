@@ -1,0 +1,13 @@
+document_type: discharge_summary
+fields:
+  patient_name: patientName
+  doctor_name: doctorName
+  diagnosis: diagnosis
+  brief_history: briefHistory
+  course_during_hospitalisation: courseDuringHospitalisation
+  recommendations: recommendations
+  hospital_address: hospitalAddress
+  ward: ward
+  age: age
+  gender: gender
+  medicines_array: dischargeMedications

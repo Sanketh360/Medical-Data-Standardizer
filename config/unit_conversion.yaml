@@ -1,0 +1,74 @@
+# Unit Conversion & Scaling Factors
+# All factors scale the original numeric value by multiplication (value_std = value_orig * factor)
+
+g/L:
+  canonical: g/dL
+  factor: 0.1
+
+gm/dL:
+  canonical: g/dL
+  factor: 1.0
+
+g/dL:
+  canonical: g/dL
+  factor: 1.0
+
+mg/dL:
+  canonical: mg/dL
+  factor: 1.0
+
+mg/l:
+  canonical: mg/dL
+  factor: 0.1
+
+mmol/L:
+  canonical: mmol/L
+  factor: 1.0
+
+mmol/l:
+  canonical: mmol/L
+  factor: 1.0
+
+Million/cu.mm:
+  canonical: Million/cu.mm
+  factor: 1.0
+
+mil/cu.mm:
+  canonical: Million/cu.mm
+  factor: 1.0
+
+cells/cu.mm:
+  canonical: cells/cu.mm
+  factor: 1.0
+
+/cu.mm:
+  canonical: /cu.mm
+  factor: 1.0
+
+U/L:
+  canonical: U/L
+  factor: 1.0
+
+u/l:
+  canonical: U/L
+  factor: 1.0
+
+"%":
+  canonical: "%"
+  factor: 1.0
+
+fL:
+  canonical: fL
+  factor: 1.0
+
+fl:
+  canonical: fL
+  factor: 1.0
+
+pg:
+  canonical: pg
+  factor: 1.0
+
+ratio:
+  canonical: ratio
+  factor: 1.0

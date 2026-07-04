@@ -1,0 +1,239 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="header">
+    <div>
+        <h1>Standardised Claims Records</h1>
+        <p>Browse and audit structured medical reports stored in the unified database schema.</p>
+    </div>
+</div>
+
+<!-- Search & Filtering Controls -->
+<form class="filter-form" method="GET" action="/records">
+    <div class="form-group">
+        <label for="search">Search Input</label>
+        <input type="text" id="search" name="search" class="form-input" placeholder="Name, Document ID, Claim No..." value="{{ search }}">
+    </div>
+    
+    <div class="form-group">
+        <label for="type">Record Type</label>
+        <select id="type" name="type" class="form-input">
+            <option value="">All Document Types</option>
+            <option value="discharge_summary" {% if type == 'discharge_summary' %}selected{% endif %}>Discharge Summary</option>
+            <option value="lab_report" {% if type == 'lab_report' %}selected{% endif %}>Lab Report</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="status">Audit Status</label>
+        <select id="status" name="status" class="form-input">
+            <option value="">All Statuses</option>
+            <option value="processed" {% if status == 'processed' %}selected{% endif %}>Processed</option>
+            <option value="flagged" {% if status == 'flagged' %}selected{% endif %}>Flagged (Anomalies)</option>
+            <option value="duplicate" {% if status == 'duplicate' %}selected{% endif %}>Duplicates</option>
+        </select>
+    </div>
+
+    <div class="form-group" style="align-self: flex-end;">
+        <button type="submit" class="btn"><i data-lucide="search"></i> Apply Filters</button>
+    </div>
+    <div class="form-group" style="align-self: flex-end;">
+        <a href="/records" class="btn btn-secondary"><i data-lucide="x-circle"></i> Clear</a>
+    </div>
+</form>
+
+<!-- Records Grid -->
+<div class="card-section">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Claim Number</th>
+                    <th>Document ID</th>
+                    <th>Record Type</th>
+                    <th>Patient Name</th>
+                    <th>Entity Name</th>
+                    <th>Target Field / Identifier</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td><strong>{{ r.claim_no }}</strong></td>
+                    <td>{{ r.document_id }}</td>
+                    <td><span style="font-size: 12px; font-weight: 500; text-transform: uppercase;">{{ r.record_type }}</span></td>
+                    <td>{{ r.patient_name }}</td>
+                    <td>{{ r.hospital_name }}</td>
+                    <td>
+                        {% if r.record_type == 'lab_report' %}
+                        <div style="font-weight: 600; color: var(--accent);">{{ r.test_name_canonical or r.test_name_original }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">Result: {{ r.result_text }}</div>
+                        {% else %}
+                        <div style="font-weight: 600; color: var(--info);">{{ r.medicine }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">Dose: {{ r.dose }} ({{ r.frequency }})</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.duplicate_flag %}
+                        <span class="badge badge-duplicate">Duplicate</span>
+                        {% elif r.processing_status == 'flagged' %}
+                        <span class="badge badge-flagged">Flagged</span>
+                        {% else %}
+                        <span class="badge badge-processed">Processed</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openInspector('{{ r.id }}')">
+                            <i data-lucide="eye"></i> Inspect
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-secondary);">No records match the filter criteria.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Interactive Record Inspector Overlay Modal -->
+<div id="inspector-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Standardised Record Inspector</h3>
+            <button class="modal-close" onclick="closeInspector()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Part 1: Metadata Section -->
+            <div class="inspector-section">
+                <span class="inspector-section-title">Demographics & Origin</span>
+                <div class="inspector-grid">
+                    <div class="inspector-item"><span class="inspector-label">Patient Name</span><span class="inspector-value" id="ins-patient-name"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Age / Gender</span><span class="inspector-value" id="ins-age-gender"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Hospital / Lab</span><span class="inspector-value" id="ins-hospital"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Attending Doctor</span><span class="inspector-value" id="ins-doctor"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Claim Number</span><span class="inspector-value" id="ins-claim-no"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Document ID</span><span class="inspector-value" id="ins-doc-id"></span></div>
+                </div>
+            </div>
+
+            <!-- Part 2: Normalisation Comparison -->
+            <div class="inspector-section">
+                <span class="inspector-section-title">Standardisation & Resolution mapping</span>
+                <div class="comparison-grid">
+                    <!-- Left: Source Field Value -->
+                    <div class="comparison-pane">
+                        <h4>Original Raw Values</h4>
+                        <div class="comparison-box" id="ins-raw-values"></div>
+                    </div>
+                    <!-- Right: Target Standard Value -->
+                    <div class="comparison-pane">
+                        <h4>Standardised Canonical Values</h4>
+                        <div class="comparison-box comparison-highlight" id="ins-std-values"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 3: Metrics of Mapping Resolution -->
+            <div class="inspector-section">
+                <span class="inspector-section-title">Normalisation Confidence</span>
+                <div class="inspector-grid" style="background-color: rgba(99, 102, 241, 0.04); border-color: var(--primary);">
+                    <div class="inspector-item"><span class="inspector-label">Resolution Method</span><span class="inspector-value" id="ins-method"></span></div>
+                    <div class="inspector-item"><span class="inspector-label">Match Score / Confidence</span><span class="inspector-value" id="ins-confidence"></span></div>
+                </div>
+            </div>
+
+            <!-- Part 4: Complete schema schema rows expansion -->
+            <div class="inspector-section">
+                <span class="inspector-section-title">Audit Log (78 columns full row schema)</span>
+                <pre class="raw-payload" id="ins-full-json"></pre>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeInspector()">Close Inspector</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openInspector(recordId) {
+        // Fetch detailed record from server
+        fetch(`/record/${recordId}`)
+            .then(res => res.json())
+            .then(data => {
+                // Demographics
+                document.getElementById('ins-patient-name').innerText = data.patient_name || 'N/A';
+                document.getElementById('ins-age-gender').innerText = `${data.age || 'N/A'} / ${data.gender || 'N/A'}`;
+                document.getElementById('ins-hospital').innerText = data.hospital_name || 'N/A';
+                document.getElementById('ins-doctor').innerText = data.doctor_name || 'N/A';
+                document.getElementById('ins-claim-no').innerText = data.claim_no || 'N/A';
+                document.getElementById('ins-doc-id').innerText = data.document_id || 'N/A';
+                
+                // Details based on record type
+                if (data.record_type === 'lab_report') {
+                    document.getElementById('ins-raw-values').innerHTML = `
+                        <div>
+                            <div><strong>Test Name:</strong> ${data.test_name_original || 'N/A'}</div>
+                            <div><strong>Result:</strong> ${data.result_text || 'N/A'}</div>
+                            <div><strong>Unit:</strong> ${data.unit_original || 'N/A'}</div>
+                            <div><strong>Range:</strong> ${data.range_text || 'N/A'}</div>
+                        </div>
+                    `;
+                    document.getElementById('ins-std-values').innerHTML = `
+                        <div>
+                            <div><strong>Canonical Test:</strong> ${data.test_name_canonical || 'N/A'}</div>
+                            <div><strong>Value:</strong> ${data.result_value !== null ? data.result_value : 'N/A'}</div>
+                            <div><strong>Canonical Unit:</strong> ${data.unit_canonical || 'N/A'}</div>
+                            <div><strong>Parsed Range:</strong> ${data.range_low !== null ? data.range_low : 'None'} - ${data.range_high !== null ? data.range_high : 'None'}</div>
+                            <div style="margin-top: 4px;">
+                                <strong>Analytics Flag:</strong> 
+                                <span class="range-badge range-${
+                                    {'Within Range': 'within', 'Above Range': 'above', 'Below Range': 'below', 'Outlier': 'outlier', 'Invalid': 'invalid'}[data.test_analytics] || 'invalid'
+                                }">${data.test_analytics}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('ins-raw-values').innerHTML = `
+                        <div>
+                            <div><strong>Medicine:</strong> ${data.medication_medicine || data.medication_name || 'N/A'}</div>
+                            <div><strong>Dose:</strong> ${data.medication_dose || 'N/A'}</div>
+                            <div><strong>Frequency:</strong> ${data.medication_frequency || 'N/A'}</div>
+                        </div>
+                    `;
+                    document.getElementById('ins-std-values').innerHTML = `
+                        <div>
+                            <div><strong>Canonical Name:</strong> ${data.medicine || 'N/A'}</div>
+                            <div><strong>Dosage Form:</strong> ${data.medicine_type || 'N/A'}</div>
+                            <div><strong>Dose:</strong> ${data.dose || 'N/A'}</div>
+                            <div><strong>Frequency:</strong> ${data.frequency || 'N/A'}</div>
+                        </div>
+                    `;
+                }
+
+                // Confidence
+                document.getElementById('ins-method').innerText = data.normalization_method ? data.normalization_method.replace('_', ' ').toUpperCase() : 'N/A';
+                document.getElementById('ins-confidence').innerText = data.normalization_confidence !== null ? `${Math.round(data.normalization_confidence * 100)}%` : 'N/A';
+
+                // Raw JSON
+                document.getElementById('ins-full-json').innerText = JSON.stringify(data, null, 4);
+
+                // Show modal
+                document.getElementById('inspector-modal').style.display = 'flex';
+                lucide.createIcons();
+            })
+            .catch(err => {
+                alert("Failed to load record details.");
+                console.error(err);
+            });
+    }
+
+    function closeInspector() {
+        document.getElementById('inspector-modal').style.display = 'none';
+    }
+</script>
+{% endblock %}

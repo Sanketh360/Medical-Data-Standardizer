@@ -1,0 +1,148 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="header">
+    <div>
+        <h1>Operational Dashboard</h1>
+        <p>Real-time monitor for medical record ingestion, deduplication, and anomaly classification.</p>
+    </div>
+    <button id="pipeline-btn" class="btn" onclick="triggerPipeline()">
+        <i data-lucide="refresh-cw"></i> Run Pipeline
+    </button>
+</div>
+
+<!-- KPI Summary Section -->
+<div class="kpi-grid">
+    <div class="kpi-card info">
+        <span class="card-title">Total Records Ingested</span>
+        <span class="card-value">{{ total_records }}</span>
+    </div>
+    <div class="kpi-card processed">
+        <span class="card-title">Total Files Processed</span>
+        <span class="card-value">{{ total_files_processed }}</span>
+    </div>
+    <div class="kpi-card failed">
+        <span class="card-title">Ingestion Failures</span>
+        <span class="card-value">{{ total_files_failed }}</span>
+    </div>
+    <div class="kpi-card flagged">
+        <span class="card-title">Flagged Anomalies</span>
+        <span class="card-value">{{ total_flagged }}</span>
+    </div>
+    <div class="kpi-card info">
+        <span class="card-title">Duplicate Rows</span>
+        <span class="card-value">{{ total_duplicates }}</span>
+    </div>
+</div>
+
+<div class="split-sections">
+    <div class="card-section">
+        <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);" onclick="clearHistory()">
+                <i data-lucide="trash-2"></i> Clear History
+            </button>
+            <h2 style="border: none; margin: 0; padding: 0;">Pipeline Run History</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Started At</th>
+                        <th>Finished At</th>
+                        <th>Files Seen</th>
+                        <th>Processed</th>
+                        <th>Failed</th>
+                        <th>Flagged</th>
+                        <th>Duplicates</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in pipeline_runs %}
+                    <tr>
+                        <td><strong>#{{ run.run_id }}</strong></td>
+                        <td>{{ run.started_at }}</td>
+                        <td>{{ run.finished_at or 'Running...' }}</td>
+                        <td>{{ run.files_seen }}</td>
+                        <td>{{ run.files_processed }}</td>
+                        <td>
+                            {% if run.files_failed > 0 %}
+                            <span class="badge badge-error">{{ run.files_failed }}</span>
+                            {% else %}
+                            0
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if run.records_flagged > 0 %}
+                            <span class="badge badge-flagged">{{ run.records_flagged }}</span>
+                            {% else %}
+                            0
+                            {% endif %}
+                        </td>
+                        <td>{{ run.duplicates_skipped }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-secondary);">No pipeline runs executed yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Clinic / Document Type Summary -->
+    <div class="card-section">
+        <h2>Clinic & Doc-Type Groupings</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Entity / Document Type</th>
+                        <th>Count</th>
+                        <th>Flagged</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in clinic_summaries %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ item.hospital_name }}</div>
+                            <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">{{ item.record_type }}</div>
+                        </td>
+                        <td>{{ item.total_records }}</td>
+                        <td>
+                            {% if item.flagged_count > 0 %}
+                            <span class="badge badge-flagged">{{ item.flagged_count }}</span>
+                            {% else %}
+                            0
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-secondary);">No records standardise-loaded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    <script>
+        function clearHistory() {
+            if (confirm("Are you sure you want to clear the entire pipeline run history? This cannot be undone.")) {
+                fetch('/clear-history', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        window.location.reload();
+                    })
+                    .catch(err => {
+                        alert("Failed to clear history.");
+                        console.error(err);
+                    });
+            }
+        }
+    </script>
+{% endblock %}

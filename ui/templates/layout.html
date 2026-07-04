@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veritas Claims Operational Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="brand">
+            <i data-lucide="shield-check"></i>
+            Veritas <span>Claims</span>
+        </div>
+        <nav>
+            <a href="/" id="nav-home" class="nav-item"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+            <a href="/records" id="nav-records" class="nav-item"><i data-lucide="database"></i>Standardised Records</a>
+            <a href="/flagged" id="nav-flagged" class="nav-item"><i data-lucide="alert-octagon"></i>Flagged Queue</a>
+            <a href="/errors" id="nav-errors" class="nav-item"><i data-lucide="file-warning"></i>Ingestion Errors</a>
+        </nav>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+        <!-- Page Injection -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Global Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Active Navigation Marker logic
+        const path = window.location.pathname;
+        document.querySelectorAll('.nav-item').forEach(link => {
+            if (link.getAttribute('href') === path) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Global Pipeline Trigger Handler
+        function triggerPipeline() {
+            const btn = document.getElementById('pipeline-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Running Ingestion...';
+            lucide.createIcons();
+            
+            fetch('/run-pipeline', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert("Pipeline execution failed. Check console logs.");
+                    console.error(err);
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    lucide.createIcons();
+                });
+        }
+    </script>
+</body>
+</html>

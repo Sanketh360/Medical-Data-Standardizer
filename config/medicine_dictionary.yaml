@@ -1,0 +1,29 @@
+MISOPROSTOL:
+  aliases:
+    - Tab. miso
+    - TAB MISO
+    - Misoprostol
+    - MISOPROSTOL
+    - induction dose
+  canonical: Misoprostol
+  type: Tablet
+
+PARACETAMOL:
+  aliases:
+    - Tab. Paracetamol
+    - TAB PARACETAMOL
+    - Paracetamol
+    - Crocin
+    - Calpol
+    - PCM
+  canonical: Paracetamol
+  type: Tablet
+
+AMOXICILLIN:
+  aliases:
+    - Amoxycillin
+    - Amoxicillin
+    - Cap. Amox
+    - Mox
+  canonical: Amoxicillin
+  type: Capsule

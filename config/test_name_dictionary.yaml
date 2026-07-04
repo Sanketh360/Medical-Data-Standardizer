@@ -1,0 +1,237 @@
+HAEMOGLOBIN:
+  canonical: HAEMOGLOBIN
+  aliases:
+    - Hb
+    - HGB
+    - Haemoglobin
+    - aemoglobin
+    - Hemoglobin
+  category: Hematology
+  expected_unit: g/dL
+  expected_type: numeric
+
+WHITE_BLOOD_CELL_COUNT:
+  canonical: WHITE_BLOOD_CELL_COUNT
+  aliases:
+    - WBC
+    - WBC Count
+    - White Blood Cells
+    - Total Leucocyte Count
+    - TLC
+  category: Hematology
+  expected_unit: cells/cu.mm
+  expected_type: numeric
+
+SERUM_CREATININE:
+  canonical: SERUM_CREATININE
+  aliases:
+    - Creatinine
+    - Serum Creatinine
+    - Creat
+    - S. Creatinine
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+
+SODIUM:
+  canonical: SODIUM
+  aliases:
+    - Sodium
+    - Na
+    - Na+
+    - Serum Sodium
+  category: Electrolytes
+  expected_unit: mmol/L
+  expected_type: numeric
+
+POTASSIUM:
+  canonical: POTASSIUM
+  aliases:
+    - Potassium
+    - K
+    - K+
+    - Serum Potassium
+  category: Electrolytes
+  expected_unit: mmol/L
+  expected_type: numeric
+
+RBC_COUNT:
+  canonical: RBC_COUNT
+  aliases:
+    - RBC
+    - RBC Count
+    - Red Blood Cells
+    - Total RBC Count
+  category: Hematology
+  expected_unit: Million/cu.mm
+  expected_type: numeric
+
+PLATELET_COUNT:
+  canonical: PLATELET_COUNT
+  aliases:
+    - Platelet Count
+    - Platelets
+    - PLT
+  category: Hematology
+  expected_unit: /cu.mm
+  expected_type: numeric
+
+NEUTROPHILS:
+  canonical: NEUTROPHILS
+  aliases:
+    - Neutrophils
+    - Neutro
+    - Polymorphs
+  category: Hematology
+  expected_unit: "%"
+  expected_type: numeric
+
+LYMPHOCYTES:
+  canonical: LYMPHOCYTES
+  aliases:
+    - Lymphocytes
+    - Lympho
+  category: Hematology
+  expected_unit: "%"
+  expected_type: numeric
+
+PACKED_CELL_VOLUME:
+  canonical: PACKED_CELL_VOLUME
+  aliases:
+    - Packed Cell Volume
+    - PCV
+    - Hematocrit
+    - HCT
+  category: Hematology
+  expected_unit: "%"
+  expected_type: numeric
+
+MEAN_CORPUSCULAR_VOLUME:
+  canonical: MEAN_CORPUSCULAR_VOLUME
+  aliases:
+    - Mean Corpuscular Volume
+    - MCV
+  category: Hematology
+  expected_unit: fL
+  expected_type: numeric
+
+MCH:
+  canonical: MCH
+  aliases:
+    - MCH
+    - Mean Corpuscular Hemoglobin
+  category: Hematology
+  expected_unit: pg
+  expected_type: numeric
+
+MCHC:
+  canonical: MCHC
+  aliases:
+    - MCHC
+    - Mean Corpuscular Hemoglobin Concentration
+  category: Hematology
+  expected_unit: g/dL
+  expected_type: numeric
+
+RDW:
+  canonical: RDW
+  aliases:
+    - RDW
+    - Red Cell Distribution Width
+  category: Hematology
+  expected_unit: "%"
+  expected_type: numeric
+
+SGOT:
+  canonical: SGOT
+  aliases:
+    - SGOT
+    - AST
+    - Aspartate Aminotransferase
+  category: Biochemistry
+  expected_unit: U/L
+  expected_type: numeric
+
+SGPT:
+  canonical: SGPT
+  aliases:
+    - SGPT
+    - ALT
+    - Alanine Aminotransferase
+  category: Biochemistry
+  expected_unit: U/L
+  expected_type: numeric
+
+ALKALINE_PHOSPHATASE:
+  canonical: ALKALINE_PHOSPHATASE
+  aliases:
+    - Alkaline Phosphatase
+    - ALP
+  category: Biochemistry
+  expected_unit: U/L
+  expected_type: numeric
+
+TOTAL_PROTEIN:
+  canonical: TOTAL_PROTEIN
+  aliases:
+    - Total Protein
+    - Protein
+  category: Biochemistry
+  expected_unit: g/dL
+  expected_type: numeric
+
+ALBUMIN:
+  canonical: ALBUMIN
+  aliases:
+    - Albumin
+  category: Biochemistry
+  expected_unit: g/dL
+  expected_type: numeric
+
+GLOBULIN:
+  canonical: GLOBULIN
+  aliases:
+    - Globulin
+  category: Biochemistry
+  expected_unit: g/dL
+  expected_type: numeric
+
+AG_RATIO:
+  canonical: AG_RATIO
+  aliases:
+    - A/G Ratio
+    - Albumin/Globulin Ratio
+  category: Biochemistry
+  expected_unit: ratio
+  expected_type: numeric
+
+COVID19:
+  canonical: COVID19
+  aliases:
+    - COVID-19
+    - SARS-CoV-2
+    - Corona Virus Test
+    - Corona
+  category: Serology
+  expected_unit: text
+  expected_type: qualitative
+
+HIV:
+  canonical: HIV
+  aliases:
+    - HIV I & II
+    - HIV Test
+    - Human Immunodeficiency Virus
+  category: Serology
+  expected_unit: text
+  expected_type: qualitative
+
+WIDAL:
+  canonical: WIDAL
+  aliases:
+    - Widal
+    - Widal Test
+    - Typhoid Test
+  category: Serology
+  expected_unit: text
+  expected_type: qualitative

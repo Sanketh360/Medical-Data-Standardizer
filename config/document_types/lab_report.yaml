@@ -1,0 +1,11 @@
+document_type: lab_report
+fields:
+  patient_name: basic_info.patient_name
+  hospital_name: basic_info.lab_or_hospital_name
+  report_date: basic_info.reports_date
+  bill_date: basic_info.bill_date
+  age: basic_info.age
+  gender: basic_info.gender
+  tests_array: report_details
+  report_name: basic_info.report_name
+  page_number: basic_info.page_no
