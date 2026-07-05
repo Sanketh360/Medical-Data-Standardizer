@@ -76,18 +76,69 @@ def index():
         clinic_summaries=clinic_summaries
     )
 
+PAGE_SIZE = 100
+CHUNK_SIZE = 20
+
 @app.route('/records')
 def records():
     search = request.args.get('search', '')
     rec_type = request.args.get('type', '')
     status = request.args.get('status', '')
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+        
+    try:
+        chunk = int(request.args.get('chunk', 0))
+        if chunk < 0:
+            chunk = 0
+    except ValueError:
+        chunk = 0
+
+    # 1. Fetch total records matching filters to calculate total pages
+    count_query = "SELECT COUNT(*) as cnt FROM standardized_records WHERE 1=1"
+    count_params = []
+    
+    if search:
+        count_query += " AND (patient_name LIKE %s OR document_id LIKE %s OR claim_no LIKE %s)"
+        search_param = f"%{search}%"
+        count_params.extend([search_param, search_param, search_param])
+        
+    if rec_type:
+        count_query += " AND record_type = %s"
+        count_params.append(rec_type)
+        
+    if status:
+        if status == 'duplicate':
+            count_query += " AND duplicate_flag = TRUE"
+        elif status == 'processed':
+            count_query += " AND processing_status = 'processed' AND (duplicate_flag = FALSE OR duplicate_flag IS NULL)"
+        else:
+            count_query += " AND processing_status = %s"
+            count_params.append(status)
+
+    count_res = query_db(count_query, count_params, one=True)
+    total_records = count_res['cnt'] if count_res else 0
+    
+    import math
+    total_pages = math.ceil(total_records / PAGE_SIZE)
+    if total_pages < 1:
+        total_pages = 1
+        
+    if page > total_pages:
+        page = total_pages
+        
+    # 2. Fetch the records for current chunk of the page
+    offset = (page - 1) * PAGE_SIZE + chunk * CHUNK_SIZE
     
     query = "SELECT * FROM standardized_records WHERE 1=1"
     params = []
     
     if search:
         query += " AND (patient_name LIKE %s OR document_id LIKE %s OR claim_no LIKE %s)"
-        search_param = f"%{search}%"
         params.extend([search_param, search_param, search_param])
         
     if rec_type:
@@ -103,10 +154,31 @@ def records():
             query += " AND processing_status = %s"
             params.append(status)
             
-    query += " ORDER BY processed_at DESC LIMIT 100"
+    query += " ORDER BY processed_at DESC LIMIT %s OFFSET %s"
+    params.extend([CHUNK_SIZE, offset])
+    
     records_list = query_db(query, params)
     
-    return render_template('records.html', records=records_list, search=search, type=rec_type, status=status)
+    is_ajax = request.args.get('ajax') == '1'
+    if is_ajax:
+        return render_template('records_rows.html', records=records_list, is_initial=(chunk == 0))
+        
+    has_prev = page > 1
+    has_next = page < total_pages
+    
+    return render_template(
+        'records.html', 
+        records=records_list, 
+        search=search, 
+        type=rec_type, 
+        status=status, 
+        current_page=page, 
+        total_pages=total_pages,
+        total_records=total_records,
+        has_prev=has_prev,
+        has_next=has_next,
+        is_initial=True
+    )
 
 @app.route('/record/<record_id>')
 def get_record(record_id):
@@ -118,13 +190,64 @@ def get_record(record_id):
 
 @app.route('/flagged')
 def flagged():
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+        
+    try:
+        chunk = int(request.args.get('chunk', 0))
+        if chunk < 0:
+            chunk = 0
+    except ValueError:
+        chunk = 0
+        
+    # 1. Fetch total flagged records to calculate total pages
+    count_query = """
+        SELECT COUNT(*) as cnt FROM standardized_records 
+        WHERE processing_status = 'flagged' OR test_analytics <> 'Within Range'
+    """
+    count_res = query_db(count_query, one=True)
+    total_records = count_res['cnt'] if count_res else 0
+    
+    import math
+    total_pages = math.ceil(total_records / PAGE_SIZE)
+    if total_pages < 1:
+        total_pages = 1
+        
+    if page > total_pages:
+        page = total_pages
+        
+    # 2. Fetch the records for current chunk of the page
+    offset = (page - 1) * PAGE_SIZE + chunk * CHUNK_SIZE
+    
     # Anomaly queue lists records where validation failed or results are out of bounds
     flagged_records = query_db("""
         SELECT * FROM standardized_records 
         WHERE processing_status = 'flagged' OR test_analytics <> 'Within Range'
         ORDER BY processed_at DESC
-    """)
-    return render_template('flagged.html', records=flagged_records)
+        LIMIT %s OFFSET %s
+    """, [CHUNK_SIZE, offset])
+    
+    is_ajax = request.args.get('ajax') == '1'
+    if is_ajax:
+        return render_template('flagged_rows.html', records=flagged_records, is_initial=(chunk == 0))
+        
+    has_prev = page > 1
+    has_next = page < total_pages
+    
+    return render_template(
+        'flagged.html', 
+        records=flagged_records, 
+        current_page=page, 
+        total_pages=total_pages,
+        total_records=total_records,
+        has_prev=has_prev,
+        has_next=has_next,
+        is_initial=True
+    )
 
 @app.route('/errors')
 def errors():

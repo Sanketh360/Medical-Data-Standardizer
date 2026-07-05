@@ -58,46 +58,47 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for r in records %}
-                <tr>
-                    <td><strong>{{ r.claim_no }}</strong></td>
-                    <td>{{ r.document_id }}</td>
-                    <td><span style="font-size: 12px; font-weight: 500; text-transform: uppercase;">{{ r.record_type }}</span></td>
-                    <td>{{ r.patient_name }}</td>
-                    <td>{{ r.hospital_name }}</td>
-                    <td>
-                        {% if r.record_type == 'lab_report' %}
-                        <div style="font-weight: 600; color: var(--accent);">{{ r.test_name_canonical or r.test_name_original }}</div>
-                        <div style="font-size: 11px; color: var(--text-secondary);">Result: {{ r.result_text }}</div>
-                        {% else %}
-                        <div style="font-weight: 600; color: var(--info);">{{ r.medicine }}</div>
-                        <div style="font-size: 11px; color: var(--text-secondary);">Dose: {{ r.dose }} ({{ r.frequency }})</div>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if r.duplicate_flag %}
-                        <span class="badge badge-duplicate">Duplicate</span>
-                        {% elif r.processing_status == 'flagged' %}
-                        <span class="badge badge-flagged">Flagged</span>
-                        {% else %}
-                        <span class="badge badge-processed">Processed</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openInspector('{{ r.id }}')">
-                            <i data-lucide="eye"></i> Inspect
-                        </button>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="8" style="text-align: center; color: var(--text-secondary);">No records match the filter criteria.</td>
-                </tr>
-                {% endfor %}
+            <tbody id="records-tbody">
+                {% include 'records_rows.html' %}
             </tbody>
         </table>
+        
+        <!-- Loading Sentinel for Infinite Scroll -->
+        <div id="loading-sentinel" class="loading-sentinel">
+            <div class="spinner"></div>
+            <span>Loading more records...</span>
+        </div>
+        {% if records|length < 20 %}
+        <style>#loading-sentinel { display: none; }</style>
+        {% endif %}
     </div>
+    
+    <!-- Pagination Navigation Bar -->
+    {% if total_pages > 1 %}
+    <div class="pagination-container">
+        <!-- Previous Page Button -->
+        <a href="?page={{ current_page - 1 }}&search={{ search }}&type={{ type }}&status={{ status }}" 
+           class="pagination-btn {% if not has_prev %}disabled{% endif %}" 
+           title="Previous Page">
+            &laquo; Prev
+        </a>
+
+        <!-- Numbered Page Buttons -->
+        {% for p in range(1, total_pages + 1) %}
+            <a href="?page={{ p }}&search={{ search }}&type={{ type }}&status={{ status }}" 
+               class="pagination-btn {% if p == current_page %}active{% endif %}">
+                {{ p }}
+            </a>
+        {% endfor %}
+
+        <!-- Next Page Button -->
+        <a href="?page={{ current_page + 1 }}&search={{ search }}&type={{ type }}&status={{ status }}" 
+           class="pagination-btn {% if not has_next %}disabled{% endif %}" 
+           title="Next Page">
+            Next &raquo;
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Interactive Record Inspector Overlay Modal -->
@@ -235,5 +236,81 @@
     function closeInspector() {
         document.getElementById('inspector-modal').style.display = 'none';
     }
+
+    // Page-Scoped Lazy Loading Logic (Hybrid pagination + chunking)
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let page = parseInt(urlParams.get('page')) || 1;
+        let currentChunk = 0;
+        let loading = false;
+        let hasMore = {% if records|length == 20 %}true{% else %}false{% endif %};
+        const sentinel = document.getElementById('loading-sentinel');
+
+        if (hasMore && sentinel) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !loading && hasMore) {
+                    loadNextPage();
+                }
+            }, {
+                root: null,
+                rootMargin: '150px', // fetch early
+                threshold: 0.1
+            });
+            
+            observer.observe(sentinel);
+            
+            function loadNextPage() {
+                if (currentChunk >= 4) {
+                    hasMore = false;
+                    sentinel.style.display = 'none';
+                    observer.unobserve(sentinel);
+                    return;
+                }
+                
+                loading = true;
+                
+                const fetchParams = new URLSearchParams(window.location.search);
+                fetchParams.set('page', page);
+                fetchParams.set('chunk', currentChunk + 1);
+                fetchParams.set('ajax', '1');
+                
+                fetch(`${window.location.pathname}?${fetchParams.toString()}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        if (html.trim() === '') {
+                            hasMore = false;
+                            sentinel.style.display = 'none';
+                            observer.unobserve(sentinel);
+                            return;
+                        }
+                        
+                        currentChunk++;
+                        const tbody = document.getElementById('records-tbody');
+                        tbody.insertAdjacentHTML('beforeend', html);
+                        
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                        
+                        // Count loaded elements in the newly loaded chunk
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = `<table><tbody>${html}</tbody></table>`;
+                        const rowCount = tempDiv.querySelectorAll('tbody > tr').length;
+                        
+                        if (rowCount < 20 || currentChunk >= 4) {
+                            hasMore = false;
+                            sentinel.style.display = 'none';
+                            observer.unobserve(sentinel);
+                        }
+                        
+                        loading = false;
+                    })
+                    .catch(err => {
+                        console.error('Failed to lazy load records:', err);
+                        loading = false;
+                    });
+            }
+        }
+    })();
 </script>
 {% endblock %}

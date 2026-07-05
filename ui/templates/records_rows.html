@@ -1,0 +1,38 @@
+{% for r in records %}
+<tr>
+    <td><strong>{{ r.claim_no }}</strong></td>
+    <td>{{ r.document_id }}</td>
+    <td><span style="font-size: 12px; font-weight: 500; text-transform: uppercase;">{{ r.record_type }}</span></td>
+    <td>{{ r.patient_name }}</td>
+    <td>{{ r.hospital_name }}</td>
+    <td>
+        {% if r.record_type == 'lab_report' %}
+        <div style="font-weight: 600; color: var(--accent);">{{ r.test_name_canonical or r.test_name_original }}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">Result: {{ r.result_text }}</div>
+        {% else %}
+        <div style="font-weight: 600; color: var(--info);">{{ r.medicine }}</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">Dose: {{ r.dose }} ({{ r.frequency }})</div>
+        {% endif %}
+    </td>
+    <td>
+        {% if r.duplicate_flag %}
+        <span class="badge badge-duplicate">Duplicate</span>
+        {% elif r.processing_status == 'flagged' %}
+        <span class="badge badge-flagged">Flagged</span>
+        {% else %}
+        <span class="badge badge-processed">Processed</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openInspector('{{ r.id }}')">
+            <i data-lucide="eye"></i> Inspect
+        </button>
+    </td>
+</tr>
+{% else %}
+{% if is_initial %}
+<tr>
+    <td colspan="8" style="text-align: center; color: var(--text-secondary);">No records match the filter criteria.</td>
+</tr>
+{% endif %}
+{% endfor %}

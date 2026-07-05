@@ -25,60 +25,47 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for r in records %}
-                <tr>
-                    <td><strong>{{ r.claim_no }}</strong></td>
-                    <td>{{ r.patient_name }}</td>
-                    <td>
-                        <div style="font-weight: 600;">{{ r.test_name_canonical or r.medicine }}</div>
-                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">{{ r.record_type }}</div>
-                    </td>
-                    <td><code style="font-family: 'JetBrains Mono', monospace;">{{ r.result_text or 'N/A' }}</code></td>
-                    <td><strong>{{ r.result_value if r.result_value is not none else 'None' }}</strong></td>
-                    <td>
-                        {% if r.range_low is not none or r.range_high is not none %}
-                        {{ r.range_low if r.range_low is not none else 'None' }} - {{ r.range_high if r.range_high is not none else 'None' }}
-                        {% else %}
-                        {{ r.range_text or 'None' }}
-                        {% endif %}
-                        <span style="font-size: 11px; color: var(--text-secondary);">{{ r.unit_canonical or r.unit_original }}</span>
-                    </td>
-                    <td>
-                        {% if r.test_analytics == 'Outlier' %}
-                        <span class="range-badge range-outlier">OUTLIER (EXTREME)</span>
-                        {% elif r.test_analytics == 'Above Range' %}
-                        <span class="range-badge range-above">HIGH</span>
-                        {% elif r.test_analytics == 'Below Range' %}
-                        <span class="range-badge range-below">LOW</span>
-                        {% elif r.test_analytics == 'Invalid' %}
-                        <span class="range-badge range-invalid">PARSING ERROR</span>
-                        {% else %}
-                        <span class="range-badge range-invalid">FLAGGED</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span style="font-size: 12px; color: var(--text-secondary);">
-                            {{ r.error_message or 'Abnormal threshold boundary deviation.' }}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openInspector('{{ r.id }}')">
-                            <i data-lucide="eye"></i> Inspect
-                        </button>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 32px;">
-                        <i data-lucide="check-circle" style="color: var(--success); width: 36px; height: 36px; margin-bottom: 8px;"></i>
-                        <div>Flagged queue is empty. All ingested claims are within safe thresholds!</div>
-                    </td>
-                </tr>
-                {% endfor %}
+            <tbody id="flagged-tbody">
+                {% include 'flagged_rows.html' %}
             </tbody>
         </table>
+        
+        <!-- Loading Sentinel for Infinite Scroll -->
+        <div id="loading-sentinel" class="loading-sentinel">
+            <div class="spinner"></div>
+            <span>Loading more flagged records...</span>
+        </div>
+        {% if records|length < 20 %}
+        <style>#loading-sentinel { display: none; }</style>
+        {% endif %}
     </div>
+    
+    <!-- Pagination Navigation Bar -->
+    {% if total_pages > 1 %}
+    <div class="pagination-container">
+        <!-- Previous Page Button -->
+        <a href="?page={{ current_page - 1 }}" 
+           class="pagination-btn {% if not has_prev %}disabled{% endif %}" 
+           title="Previous Page">
+            &laquo; Prev
+        </a>
+
+        <!-- Numbered Page Buttons -->
+        {% for p in range(1, total_pages + 1) %}
+            <a href="?page={{ p }}" 
+               class="pagination-btn {% if p == current_page %}active{% endif %}">
+                {{ p }}
+            </a>
+        {% endfor %}
+
+        <!-- Next Page Button -->
+        <a href="?page={{ current_page + 1 }}" 
+           class="pagination-btn {% if not has_next %}disabled{% endif %}" 
+           title="Next Page">
+            Next &raquo;
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Copy of the inspector modal structure for consistency -->
@@ -204,5 +191,81 @@
     function closeInspector() {
         document.getElementById('inspector-modal').style.display = 'none';
     }
+
+    // Page-Scoped Lazy Loading Logic (Hybrid pagination + chunking)
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let page = parseInt(urlParams.get('page')) || 1;
+        let currentChunk = 0;
+        let loading = false;
+        let hasMore = {% if records|length == 20 %}true{% else %}false{% endif %};
+        const sentinel = document.getElementById('loading-sentinel');
+
+        if (hasMore && sentinel) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !loading && hasMore) {
+                    loadNextPage();
+                }
+            }, {
+                root: null,
+                rootMargin: '150px', // fetch early
+                threshold: 0.1
+            });
+            
+            observer.observe(sentinel);
+            
+            function loadNextPage() {
+                if (currentChunk >= 4) {
+                    hasMore = false;
+                    sentinel.style.display = 'none';
+                    observer.unobserve(sentinel);
+                    return;
+                }
+                
+                loading = true;
+                
+                const fetchParams = new URLSearchParams(window.location.search);
+                fetchParams.set('page', page);
+                fetchParams.set('chunk', currentChunk + 1);
+                fetchParams.set('ajax', '1');
+                
+                fetch(`${window.location.pathname}?${fetchParams.toString()}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        if (html.trim() === '') {
+                            hasMore = false;
+                            sentinel.style.display = 'none';
+                            observer.unobserve(sentinel);
+                            return;
+                        }
+                        
+                        currentChunk++;
+                        const tbody = document.getElementById('flagged-tbody');
+                        tbody.insertAdjacentHTML('beforeend', html);
+                        
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                        
+                        // Count loaded elements in the newly loaded chunk
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = `<table><tbody>${html}</tbody></table>`;
+                        const rowCount = tempDiv.querySelectorAll('tbody > tr').length;
+                        
+                        if (rowCount < 20 || currentChunk >= 4) {
+                            hasMore = false;
+                            sentinel.style.display = 'none';
+                            observer.unobserve(sentinel);
+                        }
+                        
+                        loading = false;
+                    })
+                    .catch(err => {
+                        console.error('Failed to lazy load flagged records:', err);
+                        loading = false;
+                    });
+            }
+        }
+    })();
 </script>
 {% endblock %}
