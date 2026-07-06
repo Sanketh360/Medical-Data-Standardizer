@@ -1,6 +1,9 @@
 import os
 import sys
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, Response
+import io
+import csv
+from fpdf import FPDF
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -279,6 +282,312 @@ def clear_history():
         return jsonify({'status': 'error', 'message': f"Failed to clear history: {str(e)}"}), 500
     finally:
         conn.close()
+
+class ExportPDF(FPDF):
+    def header(self):
+        self.set_font('Helvetica', 'B', 10)
+        self.set_text_color(100, 116, 139) # slate-500
+        self.cell(0, 10, 'Veritas Claims Ingestion & Standardisation Engine', 0, 0, 'L')
+        self.cell(0, 10, f'Page {self.page_no()}', 0, 1, 'R')
+        self.line(10, 18, 287, 18)
+        self.ln(5)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Helvetica', 'I', 8)
+        self.set_text_color(148, 163, 184) # slate-400
+        self.cell(0, 10, 'Confidential Audit Export', 0, 0, 'C')
+
+def generate_records_csv(records_list):
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Claim Number", 
+        "Document ID", 
+        "Record Type", 
+        "Patient Name", 
+        "Hospital/Lab Name", 
+        "Attending Doctor", 
+        "Date", 
+        "Clinical Item (Test/Med)", 
+        "Value / Dose", 
+        "Unit / Frequency", 
+        "Reference Range", 
+        "Status"
+    ])
+    for r in records_list:
+        rec_type = r.get('record_type', '')
+        if rec_type == 'lab_report':
+            item_name = r.get('test_name_canonical') or r.get('test_name_original') or ""
+            val = r.get('result_value') if r.get('result_value') is not None else r.get('result_text') or ""
+            unit = r.get('unit_canonical') or r.get('unit_original') or ""
+            ref = r.get('range_text') or (f"{r.get('range_low')}-{r.get('range_high')}" if r.get('range_low') is not None else "")
+            date = r.get('reports_date') or r.get('bill_date') or ""
+            status = r.get('test_analytics') or ""
+        else:
+            item_name = r.get('medicine') or r.get('medication_name') or ""
+            val = r.get('dose') or ""
+            unit = r.get('frequency') or ""
+            ref = "N/A"
+            date = r.get('admission_date') or r.get('discharge_date') or ""
+            status = "Duplicate" if r.get('duplicate_flag') else (r.get('processing_status') or "")
+        writer.writerow([
+            r.get('claim_no') or "",
+            r.get('document_id') or "",
+            rec_type,
+            r.get('patient_name') or "",
+            r.get('hospital_name') or "",
+            r.get('doctor_name') or "",
+            date,
+            item_name,
+            val,
+            unit,
+            ref,
+            status
+        ])
+    response = Response(output.getvalue(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=records_export.csv"
+    return response
+
+def generate_records_pdf(records_list):
+    pdf = ExportPDF(orientation='L', unit='mm', format='A4')
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    
+    pdf.set_font('Helvetica', 'B', 16)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 10, 'Standardised Claims Records Audit Report', 0, 1, 'L')
+    pdf.ln(5)
+    
+    pdf.set_font('Helvetica', 'B', 8)
+    pdf.set_fill_color(241, 245, 249)
+    pdf.set_text_color(51, 65, 85)
+    
+    headers = ["Claim Number", "Document ID", "Type", "Patient Name", "Hospital/Lab", "Clinical Item", "Result / Dose", "Status"]
+    widths = [35, 35, 25, 35, 40, 45, 35, 27]
+    for h, w in zip(headers, widths):
+        pdf.cell(w, 8, h, border=1, align='L', fill=True)
+    pdf.ln(8)
+    
+    pdf.set_font('Courier', '', 7)
+    pdf.set_text_color(33, 37, 41)
+    
+    for r in records_list:
+        rec_type = r.get('record_type', '')
+        if rec_type == 'lab_report':
+            item_name = r.get('test_name_canonical') or r.get('test_name_original') or ""
+            val = str(r.get('result_value') if r.get('result_value') is not None else r.get('result_text') or "")
+            unit = r.get('unit_canonical') or r.get('unit_original') or ""
+            res_str = f"{val} {unit}".strip()
+            status = r.get('test_analytics') or ""
+        else:
+            item_name = r.get('medicine') or r.get('medication_name') or ""
+            dose = r.get('dose') or ""
+            freq = r.get('frequency') or ""
+            res_str = f"{dose} ({freq})".strip()
+            status = "Duplicate" if r.get('duplicate_flag') else (r.get('processing_status') or "")
+            
+        row_data = [
+            str(r.get('claim_no') or ""),
+            str(r.get('document_id') or ""),
+            str(rec_type),
+            str(r.get('patient_name') or ""),
+            str(r.get('hospital_name') or ""),
+            str(item_name),
+            str(res_str),
+            str(status)
+        ]
+        cleaned_row = [x.encode('latin-1', 'replace').decode('latin-1') for x in row_data]
+        
+        for x, w in zip(cleaned_row, widths):
+            max_char = int(w * 1.5)
+            if len(x) > max_char:
+                x = x[:max_char-3] + "..."
+            pdf.cell(w, 6, x, border=1, align='L')
+        pdf.ln(6)
+        
+    pdf_bytes = pdf.output()
+    response = Response(pdf_bytes, mimetype="application/pdf")
+    response.headers["Content-Disposition"] = "attachment; filename=records_export.pdf"
+    return response
+
+def generate_flagged_csv(records_list):
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Claim Number",
+        "Patient Name",
+        "Test / Medicine Name",
+        "Result Text",
+        "Parsed Value",
+        "Normal Reference Bounds",
+        "Anomaly Deviation",
+        "Warning Details"
+    ])
+    for r in records_list:
+        rec_type = r.get('record_type', '')
+        if rec_type == 'lab_report':
+            item_name = r.get('test_name_canonical') or r.get('test_name_original') or ""
+            res_text = r.get('result_text') or ""
+            val = str(r.get('result_value') if r.get('result_value') is not None else "")
+            bounds = f"{r.get('range_low') or 'None'} - {r.get('range_high') or 'None'}"
+            deviation = r.get('test_analytics') or ""
+            warning = r.get('error_message') or ""
+        else:
+            item_name = r.get('medicine') or r.get('medication_name') or ""
+            res_text = r.get('medication_dose') or ""
+            val = r.get('dose') or ""
+            bounds = "N/A"
+            deviation = "Duplicate" if r.get('duplicate_flag') else (r.get('processing_status') or "")
+            warning = r.get('error_message') or ""
+        writer.writerow([
+            r.get('claim_no') or "",
+            r.get('patient_name') or "",
+            item_name,
+            res_text,
+            val,
+            bounds,
+            deviation,
+            warning
+        ])
+    response = Response(output.getvalue(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=flagged_export.csv"
+    return response
+
+def generate_flagged_pdf(records_list):
+    pdf = ExportPDF(orientation='L', unit='mm', format='A4')
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    
+    pdf.set_font('Helvetica', 'B', 16)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 10, 'Flagged Anomalies Queue Audit Report', 0, 1, 'L')
+    pdf.ln(5)
+    
+    pdf.set_font('Helvetica', 'B', 8)
+    pdf.set_fill_color(241, 245, 249)
+    pdf.set_text_color(51, 65, 85)
+    
+    headers = ["Claim Number", "Patient Name", "Test/Medicine Name", "Result Text", "Parsed Value", "Ref Bounds", "Deviation", "Warnings"]
+    widths = [35, 35, 45, 35, 30, 32, 30, 40]
+    for h, w in zip(headers, widths):
+        pdf.cell(w, 8, h, border=1, align='L', fill=True)
+    pdf.ln(8)
+    
+    pdf.set_font('Courier', '', 7)
+    pdf.set_text_color(33, 37, 41)
+    
+    for r in records_list:
+        rec_type = r.get('record_type', '')
+        if rec_type == 'lab_report':
+            item_name = r.get('test_name_canonical') or r.get('test_name_original') or ""
+            res_text = r.get('result_text') or ""
+            val = str(r.get('result_value') if r.get('result_value') is not None else "")
+            bounds = f"{r.get('range_low') or 'None'}-{r.get('range_high') or 'None'}"
+            deviation = r.get('test_analytics') or ""
+            warning = r.get('error_message') or ""
+        else:
+            item_name = r.get('medicine') or r.get('medication_name') or ""
+            res_text = r.get('medication_dose') or ""
+            val = r.get('dose') or ""
+            bounds = "N/A"
+            deviation = "Duplicate" if r.get('duplicate_flag') else (r.get('processing_status') or "")
+            warning = r.get('error_message') or ""
+            
+        row_data = [
+            str(r.get('claim_no') or ""),
+            str(r.get('patient_name') or ""),
+            str(item_name),
+            str(res_text),
+            str(val),
+            str(bounds),
+            str(deviation),
+            str(warning)
+        ]
+        cleaned_row = [x.encode('latin-1', 'replace').decode('latin-1') for x in row_data]
+        
+        for x, w in zip(cleaned_row, widths):
+            max_char = int(w * 1.5)
+            if len(x) > max_char:
+                x = x[:max_char-3] + "..."
+            pdf.cell(w, 6, x, border=1, align='L')
+        pdf.ln(6)
+        
+    pdf_bytes = pdf.output()
+    response = Response(pdf_bytes, mimetype="application/pdf")
+    response.headers["Content-Disposition"] = "attachment; filename=flagged_export.pdf"
+    return response
+
+@app.route('/export/records/<format>')
+def export_records(format):
+    search = request.args.get('search', '')
+    rec_type = request.args.get('type', '')
+    status = request.args.get('status', '')
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
+    query = "SELECT * FROM standardized_records WHERE 1=1"
+    params = []
+    
+    if search:
+        query += " AND (patient_name LIKE %s OR document_id LIKE %s OR claim_no LIKE %s)"
+        search_param = f"%{search}%"
+        params.extend([search_param, search_param, search_param])
+        
+    if rec_type:
+        query += " AND record_type = %s"
+        params.append(rec_type)
+        
+    if status:
+        if status == 'duplicate':
+            query += " AND duplicate_flag = TRUE"
+        elif status == 'processed':
+            query += " AND processing_status = 'processed' AND (duplicate_flag = FALSE OR duplicate_flag IS NULL)"
+        else:
+            query += " AND processing_status = %s"
+            params.append(status)
+            
+    query += " ORDER BY processed_at DESC LIMIT %s OFFSET %s"
+    offset = (page - 1) * PAGE_SIZE
+    params.extend([PAGE_SIZE, offset])
+    
+    records_list = query_db(query, params)
+    
+    if format == 'csv':
+        return generate_records_csv(records_list)
+    elif format == 'pdf':
+        return generate_records_pdf(records_list)
+    else:
+        return "Invalid format", 400
+
+@app.route('/export/flagged/<format>')
+def export_flagged(format):
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
+    query = """
+        SELECT * FROM standardized_records 
+        WHERE processing_status = 'flagged' OR test_analytics <> 'Within Range'
+        ORDER BY processed_at DESC
+        LIMIT %s OFFSET %s
+    """
+    offset = (page - 1) * PAGE_SIZE
+    records_list = query_db(query, [PAGE_SIZE, offset])
+    
+    if format == 'csv':
+        return generate_flagged_csv(records_list)
+    elif format == 'pdf':
+        return generate_flagged_pdf(records_list)
+    else:
+        return "Invalid format", 400
 
 if __name__ == '__main__':
     # Pre-seed database with a fresh load on server start

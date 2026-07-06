@@ -636,3 +636,45 @@ pre.raw-payload {
     pointer-events: none;
     cursor: not-allowed;
 }
+
+/* Download Dropdown Styling */
+.download-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.download-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--bg-surface);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    z-index: 10;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.download-dropdown-content a {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.download-dropdown-content a:hover {
+    background-color: rgba(99, 102, 241, 0.08);
+    color: var(--primary);
+}
+
+.download-dropdown:hover .download-dropdown-content {
+    display: block;
+}
+

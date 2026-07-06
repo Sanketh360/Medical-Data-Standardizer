@@ -105,6 +105,18 @@
                             "type": null
                         },
                         {
+                            "dose": "1 TAB",
+                            "frequency": "12 HOURLY",
+                            "medicine": "TAB CEFTUM 500 MG",
+                            "type": null
+                        },
+                        {
+                            "dose": "1 TAB",
+                            "frequency": "12 HOURLY",
+                            "medicine": "TAB CEFTUM 500 MG",
+                            "type": null
+                        },
+                        {
                             "dose": "1 CAP",
                             "frequency": "12 HOURLY",
                             "medicine": "CAP. PAN 40",

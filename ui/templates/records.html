@@ -6,6 +6,13 @@
         <h1>Standardised Claims Records</h1>
         <p>Browse and audit structured medical reports stored in the unified database schema.</p>
     </div>
+    <div class="download-dropdown">
+        <button class="btn"><i data-lucide="download"></i> Export Page Data</button>
+        <div class="download-dropdown-content">
+            <a href="#" onclick="downloadData('csv')"><i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> CSV Spreadsheet</a>
+            <a href="#" onclick="downloadData('pdf')"><i data-lucide="file-text" style="width:16px;height:16px;"></i> PDF Document</a>
+        </div>
+    </div>
 </div>
 
 <!-- Search & Filtering Controls -->
@@ -161,6 +168,11 @@
 </div>
 
 <script>
+    function downloadData(format) {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = `/export/records/${format}?${params.toString()}`;
+    }
+
     function openInspector(recordId) {
         // Fetch detailed record from server
         fetch(`/record/${recordId}`)
