@@ -1,237 +1,680 @@
 HAEMOGLOBIN:
   canonical: HAEMOGLOBIN
   aliases:
-    - Hb
-    - HGB
-    - Haemoglobin
-    - aemoglobin
-    - Hemoglobin
+  - Hb
+  - HGB
+  - Haemoglobin
+  - aemoglobin
+  - Hemoglobin
   category: Hematology
   expected_unit: g/dL
   expected_type: numeric
-
 WHITE_BLOOD_CELL_COUNT:
   canonical: WHITE_BLOOD_CELL_COUNT
   aliases:
-    - WBC
-    - WBC Count
-    - White Blood Cells
-    - Total Leucocyte Count
-    - TLC
+  - WBC
+  - WBC Count
+  - White Blood Cells
+  - Total Leucocyte Count
+  - TLC
+  - TOTAL LEUCOCYTE COUNT (TLC)
   category: Hematology
   expected_unit: cells/cu.mm
   expected_type: numeric
-
 SERUM_CREATININE:
   canonical: SERUM_CREATININE
   aliases:
-    - Creatinine
-    - Serum Creatinine
-    - Creat
-    - S. Creatinine
+  - RENAL PROFILE/KIDNEY FUNCTION TEST (RFT/KFT), SERUM
+  - SERUM_CREATININE
   category: Biochemistry
   expected_unit: mg/dL
   expected_type: numeric
-
 SODIUM:
   canonical: SODIUM
   aliases:
-    - Sodium
-    - Na
-    - Na+
-    - Serum Sodium
+  - Sodium
+  - Na
+  - Na+
+  - Serum Sodium
+  - Sodium (Na+)
   category: Electrolytes
   expected_unit: mmol/L
   expected_type: numeric
-
 POTASSIUM:
   canonical: POTASSIUM
   aliases:
-    - Potassium
-    - K
-    - K+
-    - Serum Potassium
+  - Potassium
+  - K
+  - K+
+  - Serum Potassium
+  - Potassium (K+)
   category: Electrolytes
   expected_unit: mmol/L
   expected_type: numeric
-
 RBC_COUNT:
   canonical: RBC_COUNT
   aliases:
-    - RBC
-    - RBC Count
-    - Red Blood Cells
-    - Total RBC Count
+  - RBC
+  - RBC Count
+  - Red Blood Cells
+  - Total RBC Count
   category: Hematology
   expected_unit: Million/cu.mm
   expected_type: numeric
-
 PLATELET_COUNT:
   canonical: PLATELET_COUNT
   aliases:
-    - Platelet Count
-    - Platelets
-    - PLT
+  - Platelet Count
+  - Platelets
+  - PLT
   category: Hematology
   expected_unit: /cu.mm
   expected_type: numeric
-
 NEUTROPHILS:
   canonical: NEUTROPHILS
   aliases:
-    - Neutrophils
-    - Neutro
-    - Polymorphs
+  - Neutrophils
+  - Neutro
+  - Polymorphs
   category: Hematology
-  expected_unit: "%"
+  expected_unit: '%'
   expected_type: numeric
-
 LYMPHOCYTES:
   canonical: LYMPHOCYTES
   aliases:
-    - Lymphocytes
-    - Lympho
+  - Lymphocytes
+  - Lympho
   category: Hematology
-  expected_unit: "%"
+  expected_unit: '%'
   expected_type: numeric
-
 PACKED_CELL_VOLUME:
   canonical: PACKED_CELL_VOLUME
   aliases:
-    - Packed Cell Volume
-    - PCV
-    - Hematocrit
-    - HCT
+  - Packed Cell Volume
+  - PCV
+  - Hematocrit
+  - HCT
+  - BC INDICES
+  - ematocrit HCT
+  - Packed Cell Volume (PCV)
   category: Hematology
-  expected_unit: "%"
+  expected_unit: '%'
   expected_type: numeric
-
 MEAN_CORPUSCULAR_VOLUME:
   canonical: MEAN_CORPUSCULAR_VOLUME
   aliases:
-    - Mean Corpuscular Volume
-    - MCV
+  - Mean Corpuscular Volume
+  - MCV
   category: Hematology
   expected_unit: fL
   expected_type: numeric
-
 MCH:
   canonical: MCH
   aliases:
-    - MCH
-    - Mean Corpuscular Hemoglobin
+  - MCH
+  - Mean Corpuscular Hemoglobin
   category: Hematology
   expected_unit: pg
   expected_type: numeric
-
 MCHC:
   canonical: MCHC
   aliases:
-    - MCHC
-    - Mean Corpuscular Hemoglobin Concentration
+  - MCHC
+  - Mean Corpuscular Hemoglobin Concentration
+  - lean Corp Volume MCV
+  - lean Corp Hb Conc MCHC
   category: Hematology
   expected_unit: g/dL
   expected_type: numeric
-
 RDW:
   canonical: RDW
   aliases:
-    - RDW
-    - Red Cell Distribution Width
+  - RDW
+  - Red Cell Distribution Width
+  - DW-CV
+  - DW-SD
+  - R.D.W
+  - RDW - CV
   category: Hematology
-  expected_unit: "%"
+  expected_unit: '%'
   expected_type: numeric
-
 SGOT:
   canonical: SGOT
   aliases:
-    - SGOT
-    - AST
-    - Aspartate Aminotransferase
+  - SGOT
+  - AST
+  - Aspartate Aminotransferase
+  - ASPARTATE AMINOTRANSFERASE(AST/SGOT)
   category: Biochemistry
   expected_unit: U/L
   expected_type: numeric
-
 SGPT:
   canonical: SGPT
   aliases:
-    - SGPT
-    - ALT
-    - Alanine Aminotransferase
+  - SGPT
+  - ALT
+  - Alanine Aminotransferase
+  - ALANINE AMINOTRANSFERASE(ALT/SGPT)
   category: Biochemistry
   expected_unit: U/L
   expected_type: numeric
-
 ALKALINE_PHOSPHATASE:
   canonical: ALKALINE_PHOSPHATASE
   aliases:
-    - Alkaline Phosphatase
-    - ALP
+  - Alkaline Phosphatase
+  - ALP
+  - Alkaline Phosphatase (ALP)
   category: Biochemistry
   expected_unit: U/L
   expected_type: numeric
-
 TOTAL_PROTEIN:
   canonical: TOTAL_PROTEIN
   aliases:
-    - Total Protein
-    - Protein
+  - Total Protein
+  - Protein
+  - PROTEIN, TOTAL
   category: Biochemistry
   expected_unit: g/dL
   expected_type: numeric
-
 ALBUMIN:
   canonical: ALBUMIN
   aliases:
-    - Albumin
+  - Albumin
   category: Biochemistry
   expected_unit: g/dL
   expected_type: numeric
-
 GLOBULIN:
   canonical: GLOBULIN
   aliases:
-    - Globulin
+  - Globulin
   category: Biochemistry
   expected_unit: g/dL
   expected_type: numeric
-
 AG_RATIO:
   canonical: AG_RATIO
   aliases:
-    - A/G Ratio
-    - Albumin/Globulin Ratio
+  - A/G Ratio
+  - Albumin/Globulin Ratio
   category: Biochemistry
   expected_unit: ratio
   expected_type: numeric
-
 COVID19:
   canonical: COVID19
   aliases:
-    - COVID-19
-    - SARS-CoV-2
-    - Corona Virus Test
-    - Corona
+  - COVID-19
+  - SARS-CoV-2
+  - Corona Virus Test
+  - Corona
   category: Serology
   expected_unit: text
   expected_type: qualitative
-
 HIV:
   canonical: HIV
   aliases:
-    - HIV I & II
-    - HIV Test
-    - Human Immunodeficiency Virus
+  - HIV I & II
+  - HIV Test
+  - Human Immunodeficiency Virus
   category: Serology
   expected_unit: text
   expected_type: qualitative
-
 WIDAL:
   canonical: WIDAL
   aliases:
-    - Widal
-    - Widal Test
-    - Typhoid Test
+  - Widal
+  - Widal Test
+  - Typhoid Test
   category: Serology
   expected_unit: text
   expected_type: qualitative
+LACTATE:
+  canonical: LACTATE
+  aliases:
+  - lac/cmm
+  - LACTATE
+  category: BIOCHEMISTRY
+  expected_unit: mmol/L
+  expected_type: numeric
+MEAN_PLATELET_VOLUME:
+  canonical: MEAN_PLATELET_VOLUME
+  aliases:
+  - latelet Indices
+  - MEAN_PLATELET_VOLUME
+  - MPV
+  - MPV (Mean Platelet Volume)
+  category: Hematology
+  expected_unit: FL
+  expected_type: numeric
+ERYTHROCYTE_THALASSEMIA_MARKER:
+  canonical: ERYTHROCYTE_THALASSEMIA_MARKER
+  aliases:
+  - ET
+  - ERYTHROCYTE_THALASSEMIA_MARKER
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+LYMPHOCYTE_PERCENTAGE:
+  canonical: LYMPHOCYTE_PERCENTAGE
+  aliases:
+  - LCR
+  - LYMPHOCYTE_PERCENTAGE
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+EOSINOPHILS:
+  canonical: EOSINOPHILS
+  aliases:
+  - sinophils
+  - EOSINOPHILS
+  - sophils
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+MONOCYTE_PERCENTAGE:
+  canonical: MONOCYTE_PERCENTAGE
+  aliases:
+  - onocytes
+  - MONOCYTE_PERCENTAGE
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+DENGUE_NS1_ANTIGEN:
+  canonical: DENGUE_NS1_ANTIGEN
+  aliases:
+  - DENGUE NS 1
+  - DENGUE_NS1_ANTIGEN
+  category: Infectious Disease
+  expected_unit: Index
+  expected_type: qualitative
+C_REACTIVE_PROTEIN:
+  canonical: C_REACTIVE_PROTEIN
+  aliases:
+  - CRP-QUANTITATIVE
+  - C_REACTIVE_PROTEIN
+  category: Inflammation Markers
+  expected_unit: mg/L
+  expected_type: numeric
+TYPHI_IGG_IGM_ANTIBODY:
+  canonical: TYPHI_IGG_IGM_ANTIBODY
+  aliases:
+  - TYPHI DOT IGG & IGM
+  - TYPHI_IGG_IGM_ANTIBODY
+  - TYPHIDOT IgG AND IgM , SERUM
+  category: Infectious Disease Serology
+  expected_unit: Qualitative
+  expected_type: qualitative
+CHLORIDE:
+  canonical: CHLORIDE
+  aliases:
+  - CHLORIDE
+  category: Electrolytes
+  expected_unit: mmol/L
+  expected_type: numeric
+SERUM_LIPASE:
+  canonical: SERUM_LIPASE
+  aliases:
+  - LIPASE,SERUM
+  - SERUM_LIPASE
+  category: Biochemistry
+  expected_unit: U/L
+  expected_type: numeric
+COMPLETE_URINE_EXAMINATION:
+  canonical: COMPLETE_URINE_EXAMINATION
+  aliases:
+  - COMPLETE URINE EXAMINATION (CUE)
+  - COMPLETE_URINE_EXAMINATION
+  category: Urinalysis
+  expected_unit: N/A
+  expected_type: qualitative
+PH:
+  canonical: PH
+  aliases:
+  - pH
+  - PH
+  category: Urinalysis
+  expected_unit: pH units
+  expected_type: numeric
+URINE_SPECIFIC_GRAVITY:
+  canonical: URINE_SPECIFIC_GRAVITY
+  aliases:
+  - SP. GRAVITY
+  - URINE_SPECIFIC_GRAVITY
+  category: Urinalysis
+  expected_unit: ratio
+  expected_type: numeric
+AST_TO_ALT_RATIO:
+  canonical: AST_TO_ALT_RATIO
+  aliases:
+  - AST (SGOT) / ALT (SGPT) RATIO (DE RITIS)
+  - AST_TO_ALT_RATIO
+  category: Biochemistry
+  expected_unit: ratio
+  expected_type: numeric
+BLOOD_UREA_NITROGEN:
+  canonical: BLOOD_UREA_NITROGEN
+  aliases:
+  - UREA
+  - BLOOD_UREA_NITROGEN
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+COMPLETE_BLOOD_COUNT:
+  canonical: COMPLETE_BLOOD_COUNT
+  aliases:
+  - COMPLETE BLOOD COUNT (CBC) , WHOLE BLOOD EDTA
+  - COMPLETE_BLOOD_COUNT
+  category: Hematology
+  expected_unit: g/dL
+  expected_type: numeric
+DIFFERENTIAL_LEUCOCYTIC_COUNT:
+  canonical: DIFFERENTIAL_LEUCOCYTIC_COUNT
+  aliases:
+  - DIFFERENTIAL LEUCOCYTIC COUNT (DLC)
+  - DIFFERENTIAL_LEUCOCYTIC_COUNT
+  - Differential Leukocyte Counts
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+BASOPHIL_PERCENTAGE:
+  canonical: BASOPHIL_PERCENTAGE
+  aliases:
+  - BASOPHILS
+  - BASOPHIL_PERCENTAGE
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+TOTAL_LEUCOCYTE_COUNT:
+  canonical: TOTAL_LEUCOCYTE_COUNT
+  aliases:
+  - CORRECTED TLC
+  - TOTAL_LEUCOCYTE_COUNT
+  category: Hematology
+  expected_unit: Cells/cu.mm
+  expected_type: numeric
+NEUTROPHIL_TO_LYMPHOCYTE_RATIO:
+  canonical: NEUTROPHIL_TO_LYMPHOCYTE_RATIO
+  aliases:
+  - Neutrophil lymphocyte ratio (NLR)
+  - NEUTROPHIL_TO_LYMPHOCYTE_RATIO
+  category: Hematology
+  expected_unit: ratio
+  expected_type: numeric
+BILIRUBIN_DIRECT:
+  canonical: BILIRUBIN_DIRECT
+  aliases:
+  - BILIRUBIN CONJUGATED(DIRECT)
+  - BILIRUBIN_DIRECT
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+GLOMERULAR_FILTRATION_RATE:
+  canonical: GLOMERULAR_FILTRATION_RATE
+  aliases:
+  - FILTRATION RATE
+  - GLOMERULAR_FILTRATION_RATE
+  - eGFR - ESTIMATED GLOMERULAR
+  - eGFR
+  category: Nephrology
+  expected_unit: mL/min/1.73m^2
+  expected_type: numeric
+FASTING_BLOOD_SUGAR:
+  canonical: FASTING_BLOOD_SUGAR
+  aliases:
+  - GLUCOSE
+  - FASTING_BLOOD_SUGAR
+  category: Biochemistry
+  expected_unit: mmol/L
+  expected_type: numeric
+CRYSTALS:
+  canonical: CRYSTALS
+  aliases:
+  - CRYSTALS
+  category: Unknown
+  expected_unit: Not Provided
+  expected_type: numeric
+S_PARATYPHI_B_H_AGGLUTINATION:
+  canonical: S_PARATYPHI_B_H_AGGLUTINATION
+  aliases:
+  - S.PARATYPHI B 'H' , SERUM
+  - S_PARATYPHI_B_H_AGGLUTINATION
+  category: Infectious Diseases
+  expected_unit: AGGLUTINATION
+  expected_type: qualitative
+MALARIA_VIVAX_ANTIGEN:
+  canonical: MALARIA_VIVAX_ANTIGEN
+  aliases:
+  - MALARIA VIVAX ANTIGEN , WHOLE BLOOD EDTA
+  - MALARIA_VIVAX_ANTIGEN
+  category: Infectious Diseases
+  expected_unit: Index
+  expected_type: qualitative
+URINE_KETONES:
+  canonical: URINE_KETONES
+  aliases:
+  - URINE KETONES (RANDOM)
+  - URINE_KETONES
+  category: Biochemistry
+  expected_unit: mmol/L
+  expected_type: qualitative
+ABSENT_TEST:
+  canonical: ABSENT_TEST
+  aliases:
+  - ABSENT
+  - ABSENT_TEST
+  category: Unknown
+  expected_unit: Not Provided
+  expected_type: qualitative
+DIAGNOSTIC_PANEL:
+  canonical: DIAGNOSTIC_PANEL
+  aliases:
+  - DIAGNOSTICS
+  - DIAGNOSTIC_PANEL
+  category: General
+  expected_unit: N/A
+  expected_type: qualitative
+CHORIONIC_VILLUS_SAMPLING:
+  canonical: CHORIONIC_VILLUS_SAMPLING
+  aliases:
+  - CVS
+  - CHORIONIC_VILLUS_SAMPLING
+  category: Genetics
+  expected_unit: Not Provided
+  expected_type: qualitative
+CALCULATED_GLOBULIN:
+  canonical: CALCULATED_GLOBULIN
+  aliases:
+  - Globulin (Calculated)
+  - CALCULATED_GLOBULIN
+  category: Biochemistry
+  expected_unit: g/dL
+  expected_type: numeric
+ABDOMINAL_PAIN_ASSESSMENT:
+  canonical: ABDOMINAL_PAIN_ASSESSMENT
+  aliases:
+  - Pain abdomen
+  - ABDOMINAL_PAIN_ASSESSMENT
+  category: Clinical Assessment
+  expected_unit: Not Applicable
+  expected_type: qualitative
+BLOOD_PRESSURE:
+  canonical: BLOOD_PRESSURE
+  aliases:
+  - BP
+  - BLOOD_PRESSURE
+  category: Cardiology
+  expected_unit: mmHg
+  expected_type: numeric
+TOTAL_LEUCOCYTE_COUNT_PERCENTAGE:
+  canonical: TOTAL_LEUCOCYTE_COUNT_PERCENTAGE
+  aliases:
+  - Total Leucocyte Count (TLC) (whole blood/impedence method)
+  - TOTAL_LEUCOCYTE_COUNT_PERCENTAGE
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+VOLUME_OBSERVATION:
+  canonical: VOLUME_OBSERVATION
+  aliases:
+  - VOLUME(visual observation)
+  - VOLUME_OBSERVATION
+  category: Clinical Observation
+  expected_unit: mL
+  expected_type: numeric
+BILIRUBIN_TOTAL:
+  canonical: BILIRUBIN_TOTAL
+  aliases:
+  - BILIRUBIN(automated multistrips,fouchets method)
+  - BILIRUBIN_TOTAL
+  category: Biochemistry
+  expected_unit: umol/L
+  expected_type: numeric
+LIGHT_MICROSCOPY_EXAMINATION:
+  canonical: LIGHT_MICROSCOPY_EXAMINATION
+  aliases:
+  - OTHERS(light microscopy
+  - LIGHT_MICROSCOPY_EXAMINATION
+  category: Microbiology
+  expected_unit: Not Applicable
+  expected_type: qualitative
+MALARIA_PARASITE_SCREEN:
+  canonical: MALARIA_PARASITE_SCREEN
+  aliases:
+  - PERIPHERAL SMEAR FOR MALARIAL PARASITE (MP) , WHOLE BLOOD EDTA
+  - MALARIA_PARASITE_SCREEN
+  category: Parasitology
+  expected_unit: NOT DETECTED/DETECTED
+  expected_type: qualitative
+URIC_ACID:
+  canonical: URIC_ACID
+  aliases:
+  - URIC ACID
+  - URIC_ACID
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+LEUCOCYTE_ESTERASE:
+  canonical: LEUCOCYTE_ESTERASE
+  aliases:
+  - LEUCOCYTE ESTERASE
+  - LEUCOCYTE_ESTERASE
+  category: Hematology
+  expected_unit: Units
+  expected_type: numeric
+CENTRIFUGED_SEDIMENT_WET_MOUNT_AND_MICROSCOPY:
+  canonical: CENTRIFUGED_SEDIMENT_WET_MOUNT_AND_MICROSCOPY
+  aliases:
+  - CENTRIFUGED SEDIMENT WET MOUNT AND MICROSCOPY
+  - CENTRIFUGED_SEDIMENT_WET_MOUNT_AND_MICROSCOPY
+  category: Urinalysis
+  expected_unit: Not Applicable
+  expected_type: qualitative
+BLOOD_CULTURE_AND_SENSITIVITY_AEROBIC:
+  canonical: BLOOD_CULTURE_AND_SENSITIVITY_AEROBIC
+  aliases:
+  - CULTURE AND SENSITIVITY - AEROBIC (BLOOD)
+  - BLOOD_CULTURE_AND_SENSITIVITY_AEROBIC
+  category: Microbiology
+  expected_unit: Not Applicable
+  expected_type: qualitative
+LIVER_FUNCTION_TEST:
+  canonical: LIVER_FUNCTION_TEST
+  aliases:
+  - LIVER FUNCTION TEST (LFT) , SERUM
+  - LIVER_FUNCTION_TEST
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+BILIRUBIN_INDIRECT:
+  canonical: BILIRUBIN_INDIRECT
+  aliases:
+  - BILIRUBIN(INDIRECT)
+  - BILIRUBIN_INDIRECT
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+COMMENT_RATIO:
+  canonical: COMMENT_RATIO
+  aliases:
+  - Comment
+  - COMMENT_RATIO
+  category: Miscellaneous
+  expected_unit: ratio
+  expected_type: numeric
+ABSOLUTE_LEUCOCYTE_COUNT:
+  canonical: ABSOLUTE_LEUCOCYTE_COUNT
+  aliases:
+  - ABSOLUTE LEUCOCYTE COUNT
+  - ABSOLUTE_LEUCOCYTE_COUNT
+  category: Hematology
+  expected_unit: cells/cu.mm
+  expected_type: numeric
+HEART_RATE:
+  canonical: HEART_RATE
+  aliases:
+  - Pulse
+  - HEART_RATE
+  category: Cardiology
+  expected_unit: beats per minute
+  expected_type: numeric
+'9_11':
+  canonical: '9_11'
+  aliases:
+  - 9-11
+  - '9_11'
+  category: Hematology
+  expected_unit: g/dL
+  expected_type: numeric
+GAMMA_GLUTAMYL_TRANSPEPTIDASE:
+  canonical: GAMMA_GLUTAMYL_TRANSPEPTIDASE
+  aliases:
+  - GGT (Gamma Glutamyl Transpeptidase)
+  - GAMMA_GLUTAMYL_TRANSPEPTIDASE
+  category: Biochemistry
+  expected_unit: U/L
+  expected_type: numeric
+CRYSTALS_LIGHT_MICROSCOPY:
+  canonical: CRYSTALS_LIGHT_MICROSCOPY
+  aliases:
+  - CRYSTALS(light microscopy)
+  - CRYSTALS_LIGHT_MICROSCOPY
+  category: Hematology
+  expected_unit: Not Provided
+  expected_type: qualitative
+CALCIUM:
+  canonical: CALCIUM
+  aliases:
+  - CALCIUM
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+INORGANIC_PHOSPHORUS:
+  canonical: INORGANIC_PHOSPHORUS
+  aliases:
+  - PHOSPHORUS, INORGANIC
+  - INORGANIC_PHOSPHORUS
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
+PERCENTAGE_OF_ASPYRATED_HAEMOGLOBIN:
+  canonical: PERCENTAGE_OF_ASPYRATED_HAEMOGLOBIN
+  aliases:
+  - P/A
+  - PERCENTAGE_OF_ASPYRATED_HAEMOGLOBIN
+  category: Hematology
+  expected_unit: '%'
+  expected_type: numeric
+OXYGEN_SATURATION:
+  canonical: OXYGEN_SATURATION
+  aliases:
+  - SpO2
+  - OXYGEN_SATURATION
+  category: Pulmonology
+  expected_unit: '%'
+  expected_type: numeric
+PHOSPHORUS_SERUM:
+  canonical: PHOSPHORUS_SERUM
+  aliases:
+  - Phosphorus Serum
+  - PHOSPHORUS_SERUM
+  category: Biochemistry
+  expected_unit: mg/dL
+  expected_type: numeric
